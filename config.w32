@@ -1,0 +1,16 @@
+// $Id$
+// vim:ft=javascript
+
+ARG_WITH("fftw", "for fftw support", "yes");
+
+if (PHP_FFTW == "yes") {
+	if (CHECK_LIB("libfftw3.lib", "fftw3", PHP_FFTW) &&
+			CHECK_HEADER_ADD_INCLUDE("fftw.h", "CFLAGS_FFTW")) {
+
+		AC_DEFINE("HAVE_FFTW", 1);
+
+		EXTENSION("fftw", "fftw.c");
+	} else {
+		WARNING("fftw not enabled, headers or libraries not found");
+	}
+}
