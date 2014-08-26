@@ -36,12 +36,6 @@ extern zend_module_entry fftw_module_entry;
 #include "TSRM.h"
 #endif
 
-#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 3 && PHP_RELEASE_VERSION >= 7) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 4) || (PHP_MAJOR_VERSION > 5)
-#define PHP_FFTW_FE_END PHP_FE_END
-#else
-#define PHP_FFTW_FE_END {NULL,NULL,NULL}
-#endif
-
 /* fftw version */
 #define PHP_FFTW_VERSION "0.1.0"
 
@@ -57,6 +51,27 @@ PHP_FUNCTION(fftw_plan_dft_1d);
 PHP_FUNCTION(fftw_execute);
 PHP_FUNCTION(fftw_output);
 
+/* COMPATIBILITY */
+
+/* Macro for initializing properties in obejct (new definition for PHP 5.3) */
+#if PHP_VERSION_ID < 50399
+#define PHP_FFTW_OBJECT_PROPERTIES_INIT(zo, class_type) { \
+	zval *tmp; \
+	zend_hash_copy((*(zo)).properties, \
+		&(class_type)->default_properties, \
+		(copy_ctor_func_t) zval_add_ref, \
+		(void *) &tmp, \
+		sizeof(zval *)); \
+}
+#else
+#define PHP_FFTW_OBJECT_PROPERTIES_INIT(zo, class_type) object_properties_init(zo, class_type)
+#endif
+
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION == 3 && PHP_RELEASE_VERSION >= 7) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 4) || (PHP_MAJOR_VERSION > 5)
+#define PHP_FFTW_FE_END PHP_FE_END
+#else
+#define PHP_FFTW_FE_END {NULL,NULL,NULL}
+#endif
 
 #endif	/* PHP_FFTW_H */
 
