@@ -194,8 +194,7 @@ PHP_MINIT_FUNCTION(fftw)
 	php_fftw_plan_object_handlers.clone_obj = php_fftw_plan_object_clone;
 	php_fftw_plan_ce = zend_register_internal_class(&ce TSRMLS_CC);
 
-	/* FFTW version constant (todo: get from lib) */
-	REGISTER_STRING_CONSTANT("FFTW_VERSION", "3.4", CONST_PERSISTENT | CONST_CS);
+	REGISTER_STRING_CONSTANT("FFTW_VERSION", (char *) fftw_version, CONST_PERSISTENT | CONST_CS);
 
 	/* Sign constants */
 	REGISTER_FFTW_CONSTANT(FFTW_FORWARD);
@@ -231,6 +230,7 @@ PHP_MINFO_FUNCTION(fftw)
 	php_info_print_table_start();
 	php_info_print_table_row(2, "FFTW support", "enabled");
 	php_info_print_table_row(2, "FFTW version", PHP_FFTW_VERSION);
+	php_info_print_table_row(2, "FFTW library version", fftw_version);
 	php_info_print_table_end();
 }
 /* }}} */
