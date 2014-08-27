@@ -235,20 +235,82 @@ PHP_MINFO_FUNCTION(fftw)
 }
 /* }}} */
 
+/* {{{ */
+static fftw_complex *php_fftw_fill_complex_array(fftw_complex *in, zval *z_ht TSRMLS_DC)
+{
+	zval **ppz_item, *pz_real, *pz_complex, z_tmp;
+	HashPosition pos;
+	HashTable *ht = Z_ARRVAL_P(z_ht);
+	int i = 0;
+
+	for (zend_hash_internal_pointer_reset_ex(ht, &pos);
+		zend_hash_get_current_data_ex(ht, (void **) &ppz_item, &pos) == SUCCESS;
+		zend_hash_move_forward_ex(ht, &pos), i++
+	) {
+		if (Z_TYPE_PP(ppz_item) != IS_ARRAY) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Complex item %d has to be array", i);
+			return NULL;
+		}
+		if (zend_hash_num_elements(Z_ARRVAL_PP(ppz_item)) != 2) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Complex item %d array has to contain exactly two elements", i);
+			return NULL;
+		}
+		if (zend_hash_index_find(Z_ARRVAL_PP(ppz_item), 0, (void **) &pz_real) == FAILURE) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Complex item %d missing index 0 for real part", i);
+			return NULL;
+		}
+		if (zend_hash_index_find(Z_ARRVAL_PP(ppz_item), 0, (void **) &pz_complex) == FAILURE) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Complex item %d missing index 1 for complex part", i);
+			return NULL;
+		}
+		INIT_PZVAL_COPY(&z_tmp, pz_real);
+		convert_to_double(&z_tmp);
+		in[i][0] = Z_DVAL(z_tmp);
+		INIT_PZVAL_COPY(&z_tmp, pz_complex);
+		convert_to_double(&z_tmp);
+		in[i][1] = Z_DVAL(z_tmp);
+	}
+
+	return in;
+}
+/* }}} */
 
 /* {{{ proto fftw_plan fftw_plan_dft_1d(int $n, array $in, int $sign, int $flags)
    Create plan for 1d dft */
 PHP_FUNCTION(fftw_plan_dft_1d)
 {
-	zval *z_in, **zpp_data;
-	HashPosition pos;
+	zval *z_in;
 	long n, sign, flags;
-	
+	int in_size;
+	fftw_complex *in, *out;
+	fftw_plan plan;
+	php_fftw_plan_object *object;
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lall", &n, &z_in, &sign, &flags) == FAILURE) {
 		return;
 	}
-	
-	RETURN_NULL();
+
+	in_size = zend_hash_num_elements(Z_ARRVAL_P(z_in));
+	if (in_size != n) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING,
+			"Invalid number of elements in input array (expected: %ld, received: %d)", n, in_size);
+		RETURN_NULL();
+	}
+
+	in = (fftw_complex *) php_fftw_malloc(n * sizeof(fftw_complex));
+	out = (fftw_complex *) php_fftw_malloc(n * sizeof(fftw_complex));
+
+	plan = fftw_plan_dft_1d(n, in, out, sign, flags);
+
+	if (!php_fftw_fill_complex_array(in, z_in TSRMLS_CC)) {
+		RETURN_NULL();
+	}
+
+	object_init_ex(return_value, php_fftw_plan_ce);
+	object = (php_fftw_plan_object *) zend_object_store_get_object(return_value TSRMLS_CC);
+	object->plan = plan;
+	object->in.c = in;
+	object->out.c = out;
 }
 /* }}} */
 
