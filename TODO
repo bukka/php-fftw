@@ -1,0 +1,59 @@
+ROADMAP
+
+this is the roadmap that we (bukka/rspadim) talked in email:
+
+1) complex numbers "helpers"
+	that's a feature that we "need", and php don't have, maybe we will create a 
+	complex solution to php-fftw, but since it's not a engeneer or scientific 
+	language, probably they (php developers) only will accept as a ext, instead 
+	of a standard lib, that what i think, but i could be wrong :), in this case 
+	probably they prefer R/scilab/mathlab or other engeneer/statistic/math language
+
+	with php-fftw we only need:
+
+	1.1) a php object to create complex numbers and 'send/receive' to/from fftw lib
+	something like 
+	$complex->real, $complex->im, or an array? 
+	$complex[0] = real, $complex[1] = im? 
+	that's how fftw_complex save values (http://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html#Complex-One_002dDimensional-DFTs)
+	"The data is an array of type fftw_complex, which is by default a double[2] 
+	composed of the real (in[i][0]) and imaginary (in[i][1]) parts of a complex number. "
+
+	1.2) rectangular complex number to polar complex number (with this we can 
+	get phase and magnitude)
+	must check if phase will use radian or degree, maybe two functions (since 
+	it's faster execute C code than PHP rad2deg deg2rad code)
+
+	1.3) polar complex number to rectangular complex number (with this we can get 
+	back from phase and magnitude and execute a inverse fft after a possible 
+	frequency (phase/mag) change)
+	must check if phase will use radian or degree, maybe two functions (same 
+	problem of 1.2)
+
+	1.4) squared magnitude function to execute square(magnitude[i]) in each 
+	magnitude[] element, this will help spectral density applications
+
+2) plans (create/destroy) 
+	must check the fftw_cleanup function and fftw_destroy_plan (issue #9)
+
+3) 1d fft/dft, from real to complex, complex to complex
+
+4/5) export/import wisdom (plans)
+	maybe this will be used at clone() fftw_plan object
+
+6) 2d / 3d fft/dft
+	here is something very important, 2d fft is used with images,
+	here we should check if we could implement just one function or not (issue #8)
+
+7) guru api?
+
+8) full complex math? maybe other php-complex ext
+	including add/sub/mul/div/mod/real/imaginary/pow and others functions, more ideas here:
+
+	8.1)http://www.phpclasses.org/package/6193-PHP-Compute-the-Fast-Fourier-Transform-of-sampled-data.html#view_files
+	8.2)http://perldoc.perl.org/Math/Complex.html		(perl complex numbers, interesting...)
+	8.3)http://en.wikipedia.org/wiki/Complex_number
+	8.4)http://pear.php.net/package/Math_Complex		(nice php pear math lib)
+
+99999) nfft? i think too much for now, but it 's an interesting project, 
+	maybe others libs? ffts and others?
