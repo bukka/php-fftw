@@ -196,6 +196,10 @@ PHP_MINIT_FUNCTION(fftw)
 
 	REGISTER_STRING_CONSTANT("FFTW_VERSION", (char *) fftw_version, CONST_PERSISTENT | CONST_CS);
 
+	/* Sign constants */
+	REGISTER_FFTW_CONSTANT(FFTW_FORWARD);
+	REGISTER_FFTW_CONSTANT(FFTW_BACKWARD);
+
 	/* Algorithm-restriction flags (constants) */
 	/* Considering declaration order of fftw3 docs 
 	  (http://www.fftw.org/fftw3_doc/Planner-Flags.html#Planner-Flags) 
