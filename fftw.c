@@ -314,17 +314,21 @@ PHP_FUNCTION(fftw_plan_dft_1d)
 }
 /* }}} */
 
-/* {{{ proto bool fftw_execute(fftw_plan $plan)
+/* {{{ proto void fftw_execute(fftw_plan $plan)
    Execute plan */
 PHP_FUNCTION(fftw_execute)
 {
 	zval *z_plan;
-	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &z_plan) == FAILURE) {
+	php_fftw_plan_object *object;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &z_plan, php_fftw_plan_ce) == FAILURE) {
 		return;
 	}
-	
-	RETURN_TRUE;
+
+	object = (php_fftw_plan_object *) zend_object_store_get_object(z_plan TSRMLS_CC);
+	fftw_execute(object->plan);
+
+	RETURN_NULL();
 }
 /* }}} */
 
