@@ -33,6 +33,44 @@ this is the roadmap that we (bukka/rspadim) talked in email:
 	1.4) squared magnitude function to execute square(magnitude[i]) in each 
 	magnitude[] element, this will help spectral density applications
 
+	
+	others points (from issue #1):
+	
+	Michele Andreoli michi.andreoli@gmail.com have a nice php class write in 
+	php code (http://www.phpclasses.org/package/6193-PHP-Compute-the-Fast-Fourier-Transform-of-sampled-data.html), 
+	but we need a powerfull C function
+
+	1) function convert_to_polar(complex number, or array of complex numbers){
+	return 
+		sqrt($real*$real+$imag*$imag), // magnitude (modulo)
+		@atan($imag/$real) // / M_PI * 360 // phase (phi)
+
+	2)function convert_to_retangular(complex number, or array of complex numbers){
+	return 
+		$magnitude*cos($phase), // real
+		$magnitude*sin($phase) // imag
+	
+	3)function double_to_complex($array)
+		return foreach item
+		complex($double, 0 imaginary part)
+	
+	4)function complex_to_double($array)
+		return foreach item
+		real_part($complex)
+	
+	5) maybe others functions to execute faster C code, instead of php code
+
+	some words from @bukka :
+		"It's a good idea to allow more formats like [[r1,c1],[r2,c2]..] 
+		It makes sense. I would also do the complex class that could be 
+		another alternative. It would allow adding more operations like 
+		conversion to phase / magnitude. There also is a new feature in 
+		PHP 5.6 that allows internal operator overloading. This could be 
+		pretty cool if we had a complex class (you could basicaly do 
+		$c1 + $c2 on complex objects) "
+	some comment
+		it's something like perl complex numbers ?! =D very nice!
+	
 2) plans (create/destroy) 
 	must check the fftw_cleanup function and fftw_destroy_plan (issue #9)
 
