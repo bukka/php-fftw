@@ -1,20 +1,53 @@
 <?php
-    /**
-     * Connect to the specified port. If called when the socket is
-     * already connected, it disconnects and connects again.
-     *
-     * @param string  $addr       IP address or host name (may be with protocol prefix).
-     * @param integer $port       TCP port number.
-     * @param boolean $persistent (optional) Whether the connection is
-     *                            persistent (kept open between requests
-     *                            by the web server).
-     * @param integer $timeout    (optional) Connection socket timeout.
-     * @param array   $options    See options for stream_context_create.
-     *
-     * @access public
-     *
-     * @return boolean|PEAR_Error  True on success or a PEAR_Error on failure.
-     */
+/**
+ * Calculate the N number from n and fft type
+ *
+ * For dimension of size n, there is a corresponding “logical” dimension N that determines the 
+ * normalization (and the optimal factorization); the formula for N is given for each kind below. 
+ * Also, with each transform kind is listed its corrsponding inverse transform. FFTW computes 
+ * unnormalized transforms: a transform followed by its inverse will result in the original 
+ * data multiplied by N (or the product of the N's for each dimension, in multi-dimensions).
+ *
+ * for more information check 
+ * http://www.fftw.org/fftw3_doc/Real_002dto_002dReal-Transform-Kinds.html#Real_002dto_002dReal-Transform-Kinds
+ * http://www.fftw.org/fftw3_doc/1d-Real_002deven-DFTs-_0028DCTs_0029.html#g_t1d-Real_002deven-DFTs-_0028DCTs_0029
+ *
+ * @param long  $fft_type     fft_r2r constant
+ * @param long  $n	      fft array size
+ *
+ * @access public
+ *
+ * @return array($inverse_type,$N)    return an array, [0] is the inverse r2r constant, [1] is N "logical" size
+ *                                    return false on error
+ */
+function calculate_N($fft_type,$n){
+	$ret=false;
+	switch $fft_type{
+		case FFTW_R2HC:
+			$ret=array(FFTW_HC2R,$n);		break;
+		case FFTW_HC2R:
+			$ret=array(FFTW_R2HC,$n);		break;
+		case FFTW_DHT:
+			$ret=array(FFTW_DHT,$n);		break;
+		case FFTW_REDFT00:
+			$ret=array(FFTW_REDFT00,2*($n-1));	break;
+		case FFTW_REDFT10:
+			$ret=array(FFTW_REDFT01,2*$n);		break;
+		case FFTW_REDFT01:
+			$ret=array(FFTW_REDFT10,2*$n);		break;
+		case FFTW_REDFT11:
+			$ret=array(FFTW_REDFT11,2*$n);		break;
+		case FFTW_RODFT00:
+			$ret=array(FFTW_RODFT00,2*($n+1));	break;
+		case FFTW_RODFT10:
+			$ret=array(FFTW_RODFT01,2*$n);		break;
+		case FFTW_RODFT01:
+			$ret=array(FFTW_RODFT10,2*$n);		break;
+		case FFTW_RODFT11:
+			$ret=array(FFTW_RODFT11,2*$n);		break;
+	}
+	return($ret);
+}
 
 /**
  * Calculate the absolute difference from two angles, in a range of 0-180 degree
